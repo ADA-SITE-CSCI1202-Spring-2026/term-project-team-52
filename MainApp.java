@@ -1,4 +1,3 @@
-// MainApp.java - YENİ VERSİYA (əvvəlkini sil, bunu yaz)
 import java.util.*;
 
 abstract class MenuItem {
