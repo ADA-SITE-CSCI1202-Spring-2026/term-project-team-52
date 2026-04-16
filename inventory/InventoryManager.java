@@ -34,4 +34,36 @@ public class InventoryManager {
     public void addCount(Ingredient ingredient, int amount) {
         stock.put(ingredient, Math.max(0, stock.getOrDefault(ingredient, 0) + amount));
     }
+
+
+    public Map<Ingredient, Integer> getStockSnapshot() {
+        return new HashMap<>(stock);
+    }
+
+    public boolean buyIngredient(Ingredient ingredient, int units, int totalCost) {
+        if (units <= 0 || totalCost < 0 || cash < totalCost) {
+            return false;
+        }
+        cash -= totalCost;
+        addCount(ingredient, units);
+        return true;
+    }
+
+
+    public boolean consumeIfPossible(Map<Ingredient, Integer> recipe) {
+        for (Map.Entry<Ingredient, Integer> entry : recipe.entrySet()) {
+            Ingredient ingredient = entry.getKey();
+            int needed = entry.getValue();
+            if (needed < 0 || getCount(ingredient) < needed) {
+                return false;
+            }
+        }
+
+        for (Map.Entry<Ingredient, Integer> entry : recipe.entrySet()) {
+            Ingredient ingredient = entry.getKey();
+            int needed = entry.getValue();
+            setCount(ingredient, getCount(ingredient) - needed);
+        }
+        return true;
+    }
 }
