@@ -17,6 +17,14 @@ public class InventoryManager {
         }
     }
 
+    public static InventoryManager withRestaurantDefaults() {
+        Map<Ingredient, Integer> startingStock = new HashMap<>();
+        startingStock.put(Ingredient.BUNS, 5);
+        startingStock.put(Ingredient.MEAT, 5);
+        startingStock.put(Ingredient.VEGETABLES, 5);
+        return new InventoryManager(100, startingStock);
+    }
+
     public int getCash() {
         return cash;
     }
@@ -53,18 +61,25 @@ public class InventoryManager {
 
 
     public boolean consumeIfPossible(Map<Ingredient, Integer> recipe) {
-        for (Map.Entry<Ingredient, Integer> entry : recipe.entrySet()) {
-            Ingredient ingredient = entry.getKey();
-            int needed = entry.getValue();
-            if (needed < 0 || getCount(ingredient) < needed) {
-                return false;
-            }
+        if (!canFulfill(recipe)) {
+            return false;
         }
 
         for (Map.Entry<Ingredient, Integer> entry : recipe.entrySet()) {
             Ingredient ingredient = entry.getKey();
             int needed = entry.getValue();
             setCount(ingredient, getCount(ingredient) - needed);
+        }
+        return true;
+    }
+
+    public boolean canFulfill(Map<Ingredient, Integer> recipe) {
+        for (Map.Entry<Ingredient, Integer> entry : recipe.entrySet()) {
+            Ingredient ingredient = entry.getKey();
+            int needed = entry.getValue();
+            if (needed < 0 || getCount(ingredient) < needed) {
+                return false;
+            }
         }
         return true;
     }
