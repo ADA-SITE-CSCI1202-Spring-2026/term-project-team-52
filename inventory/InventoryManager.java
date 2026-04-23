@@ -59,6 +59,14 @@ public class InventoryManager {
         return true;
     }
 
+    public boolean buyIngredient(Ingredient ingredient, int units) {
+        if (units <= 0) {
+            return false;
+        }
+        int totalCost = ingredient.getUnitCost() * units;
+        return buyIngredient(ingredient, units, totalCost);
+    }
+
 
     public boolean consumeIfPossible(Map<Ingredient, Integer> recipe) {
         if (!canFulfill(recipe)) {
