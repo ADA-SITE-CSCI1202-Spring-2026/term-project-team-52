@@ -1,6 +1,4 @@
 import java.util.*;
-import inventory.Ingredient;
-import inventory.InventoryManager;
 
 abstract class MenuItem {
     private String name;
@@ -26,28 +24,5 @@ public class MainApp {
         taskQueue.add(new Burger());
         System.out.println("Queue size: " + taskQueue.size());
         System.out.println("Task: " + taskQueue.peek().getName());
-
-        // Small pantry smoke demo.
-        Map<Ingredient, Integer> startingStock = new HashMap<>();
-        startingStock.put(Ingredient.BUNS, 5);
-        startingStock.put(Ingredient.MEAT, 4);
-        startingStock.put(Ingredient.VEGETABLES, 6);
-
-        InventoryManager inventory = new InventoryManager(100, startingStock);
-
-        System.out.println("Initial cash: " + inventory.getCash());
-        System.out.println("Initial stock: " + inventory.getStockSnapshot());
-
-        boolean restockOk = inventory.buyIngredient(Ingredient.MEAT, 2, 12);
-        System.out.println("Restock meat success: " + restockOk);
-
-        Map<Ingredient, Integer> burgerRecipe = new HashMap<>();
-        burgerRecipe.put(Ingredient.BUNS, 2);
-        burgerRecipe.put(Ingredient.MEAT, 1);
-        boolean cooked = inventory.consumeIfPossible(burgerRecipe);
-        System.out.println("Cook burger success: " + cooked);
-
-        System.out.println("Final cash: " + inventory.getCash());
-        System.out.println("Final stock: " + inventory.getStockSnapshot());
     }
 }
