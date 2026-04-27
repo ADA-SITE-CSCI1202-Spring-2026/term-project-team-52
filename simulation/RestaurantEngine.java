@@ -5,12 +5,10 @@ import model.Order;
 import java.util.*;
 import java.util.function.Consumer;
 
-/**
- * RestaurantEngine — STUB for Member D (Dashboard) to compile against.
- *
+/*
  * ─────────────────────────────────────────────────────────────────────────
  *  THIS FILE IS OWNED BY MEMBER C (Kitchen & Clock).
- *  Member D should compile against this stub. Member C replaces the bodies.
+ *  Member D should compile against this. Member C replaces the bodies.
  * ─────────────────────────────────────────────────────────────────────────
  *
  *  The UI calls ONLY these public methods — never reaches into InventoryManager
