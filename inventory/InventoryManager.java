@@ -22,6 +22,8 @@ public class InventoryManager {
         startingStock.put(Ingredient.BUNS, 5);
         startingStock.put(Ingredient.MEAT, 5);
         startingStock.put(Ingredient.VEGETABLES, 5);
+        startingStock.put(Ingredient.POTATO, 5);
+        startingStock.put(Ingredient.SYRUP, 5);
         return new InventoryManager(100, startingStock);
     }
 
@@ -90,5 +92,12 @@ public class InventoryManager {
             }
         }
         return true;
+    }
+
+    public void addRevenue(int amount) {
+        if (amount < 0) {
+            throw new IllegalArgumentException("amount must be non-negative");
+        }
+        cash += amount;
     }
 }
