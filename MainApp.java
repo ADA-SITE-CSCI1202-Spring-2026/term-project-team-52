@@ -6,11 +6,6 @@ import inventory.InventoryManager;
 public class MainApp {
 
     public static void main(String[] args) {
-        InventoryManager inventory = InventoryManager.withRestaurantDefaults();
-        RestaurantEngine engine = new RestaurantEngine(inventory);
-        engine.setLogger(System.out::println);
-
-        engine.getQueue().add(OrderFactory.createBurgerOrder());
-        engine.cookNextOrder();
+        RestaurantGUI.main(args);
     }
 }
