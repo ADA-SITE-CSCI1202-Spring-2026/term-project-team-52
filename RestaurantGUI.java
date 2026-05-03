@@ -120,6 +120,10 @@ public class RestaurantGUI extends JFrame {
 
         JScrollPane scroll = new JScrollPane(orderList);
         scroll.setBorder(BorderFactory.createLineBorder(new Color(180, 160, 100)));
+        scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+
+        JLabel queueHint = new JLabel("<html><small style='color:#555'>Each order shows total pantry ingredients required.</small></html>");
+        queueHint.setBorder(new EmptyBorder(0, 4, 6, 4));
 
         cookBtn = new JButton("🍳  Cook Next Order");
         cookBtn.setFont(new Font("SansSerif", Font.BOLD, 14));
@@ -133,6 +137,10 @@ public class RestaurantGUI extends JFrame {
         JPanel btnBar = new JPanel(new FlowLayout(FlowLayout.CENTER, 0, 4));
         btnBar.add(cookBtn);
 
+        JPanel north = new JPanel(new BorderLayout());
+        north.add(queueHint, BorderLayout.NORTH);
+
+        p.add(north, BorderLayout.NORTH);
         p.add(scroll, BorderLayout.CENTER);
         p.add(btnBar, BorderLayout.SOUTH);
 
@@ -145,9 +153,33 @@ public class RestaurantGUI extends JFrame {
         orderListModel.clear();
         int pos = 1;
         for (Order ord : q) {
-            orderListModel.addElement(pos + ".  " + ord.getName() + "  ($" + ord.getPrice() + ")");
+            String ing = formatTotalIngredients(ord);
+            String row = pos + ".  " + ord.getName() + "  ($" + ord.getPrice() + ")";
+            if (!ing.isEmpty()) {
+                row += "  —  " + ing;
+            }
+            orderListModel.addElement(row);
             pos++;
         }
+    }
+
+    /** One-line summary for queue display (stable ingredient order). */
+    private String formatTotalIngredients(Order ord) {
+        Map<Ingredient, Integer> m = ord.getTotalIngredients();
+        StringBuilder sb = new StringBuilder();
+        for (Ingredient ing : Ingredient.values()) {
+            int n = m.getOrDefault(ing, 0);
+            if (n > 0) {
+                if (sb.length() > 0) {
+                    sb.append(", ");
+                }
+                sb.append(prettyName(ing)).append(" ×").append(n);
+            }
+        }
+        if (sb.length() == 0) {
+            return "";
+        }
+        return "Needs: " + sb;
     }
 
     // inventory panel
