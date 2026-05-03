@@ -22,6 +22,7 @@ public class RestaurantEngine {
     private final Queue<Order> orderQueue = new LinkedList<>();
     private final List<IAppliance> appliances = new ArrayList<>();
     private final InventoryManager inventory;
+    private javax.swing.Timer autoTimer;
 
     private Consumer<String> logger;
 
@@ -55,6 +56,10 @@ public class RestaurantEngine {
             log("New Order: " + order.getName());
         });
         timer.start();
+    }
+
+    public void stopSimulation() {
+        if (autoTimer != null) autoTimer.stop();
     }
 
     private Order generateRandomOrder() {
