@@ -33,4 +33,40 @@ public final class OrderFactory {
         items.add(new Drink());
         return new Order("Drink Order", items, 5);
     }
+
+    /** Stable id for save/load (matches queue order). */
+    public static String templateKey(Order order) {
+        String n = order.getName();
+        if ("Burger Order".equals(n)) {
+            return "BURGER";
+        }
+        if ("Fries Order".equals(n)) {
+            return "FRIES";
+        }
+        if ("Meal Deal Order".equals(n)) {
+            return "MEAL_DEAL";
+        }
+        if ("Drink Order".equals(n)) {
+            return "DRINK";
+        }
+        throw new IllegalArgumentException("Unknown order template: " + n);
+    }
+
+    public static Order fromTemplateKey(String key) {
+        if (key == null || key.isEmpty()) {
+            throw new IllegalArgumentException("empty template key");
+        }
+        switch (key.trim()) {
+            case "BURGER":
+                return createBurgerOrder();
+            case "FRIES":
+                return createFriesOrder();
+            case "MEAL_DEAL":
+                return createMealDealOrder();
+            case "DRINK":
+                return createDrinkOrder();
+            default:
+                throw new IllegalArgumentException("Unknown template key: " + key);
+        }
+    }
 }

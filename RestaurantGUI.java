@@ -1,4 +1,5 @@
 import engine.order.Order;
+import engine.order.OrderFactory;
 import engine.simulation.RestaurantEngine;
 import inventory.Ingredient;
 import inventory.InventoryManager;
@@ -141,17 +142,11 @@ public class RestaurantGUI extends JFrame {
     // updates order list
     private void syncOrderList() {
         java.util.Queue<Order> q = engine.getQueue();
-        Object[] arr = q.toArray();
-
-        // only rebuild if something actually changed
-        if (arr.length != orderListModel.size()) {
-            orderListModel.clear();
-            int pos = 1;
-            for (Object o : arr) {
-                Order ord = (Order) o;
-                orderListModel.addElement(pos + ".  " + ord.getName() + "  ($" + ord.getPrice() + ")");
-                pos++;
-            }
+        orderListModel.clear();
+        int pos = 1;
+        for (Order ord : q) {
+            orderListModel.addElement(pos + ".  " + ord.getName() + "  ($" + ord.getPrice() + ")");
+            pos++;
         }
     }
 
@@ -355,10 +350,16 @@ public class RestaurantGUI extends JFrame {
     // save/load/newgame
     private void saveGame() {
         try (PrintWriter pw = new PrintWriter(new FileWriter(SAVE_FILE))) {
+            pw.println("FORMAT=V2");
             pw.println("CASH=" + inventory.getCash());
             for (Ingredient ing : Ingredient.values()) {
                 pw.println(ing.name() + "=" + inventory.getCount(ing));
             }
+            pw.println("QUEUE_START");
+            for (Order ord : engine.getQueue()) {
+                pw.println(OrderFactory.templateKey(ord));
+            }
+            pw.println("QUEUE_END");
             appendLog("Game saved to " + SAVE_FILE);
             JOptionPane.showMessageDialog(this, "Game saved!", "Save", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
@@ -367,32 +368,66 @@ public class RestaurantGUI extends JFrame {
     }
 
     private void loadGame() {
-        File f = new File(SAVE_FILE);
-        if (!f.exists()) {
+        File file = new File(SAVE_FILE);
+        if (!file.exists()) {
             JOptionPane.showMessageDialog(this, "No save file found!", "Load", JOptionPane.WARNING_MESSAGE);
             return;
         }
-        try (BufferedReader br = new BufferedReader(new FileReader(f))) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            engine.getQueue().clear();
+
+            boolean inQueue = false;
             String line;
             while ((line = br.readLine()) != null) {
                 line = line.trim();
-                if (line.isEmpty() || !line.contains("=")) continue;
+                if (line.isEmpty()) {
+                    continue;
+                }
+                if ("QUEUE_START".equals(line)) {
+                    inQueue = true;
+                    continue;
+                }
+                if ("QUEUE_END".equals(line)) {
+                    inQueue = false;
+                    continue;
+                }
+                if (inQueue) {
+                    try {
+                        Order restored = OrderFactory.fromTemplateKey(line);
+                        engine.getQueue().add(restored);
+                    } catch (IllegalArgumentException ex) {
+                        appendLog("WARN: Skipped unknown queue entry: " + line);
+                    }
+                    continue;
+                }
+                if (!line.contains("=")) {
+                    continue;
+                }
                 String[] parts = line.split("=", 2);
                 String key = parts[0].trim();
+                if ("FORMAT".equals(key)) {
+                    continue;
+                }
                 int val;
-                try { val = Integer.parseInt(parts[1].trim()); }
-                catch (NumberFormatException ex) { continue; }
-                if (key.equals("CASH")) {
+                try {
+                    val = Integer.parseInt(parts[1].trim());
+                } catch (NumberFormatException ex) {
+                    continue;
+                }
+                if ("CASH".equals(key)) {
                     inventory.setCash(val);
                 } else {
                     try {
                         Ingredient ing = Ingredient.valueOf(key);
                         inventory.setCount(ing, val);
-                    } catch (IllegalArgumentException ignored) {}
+                    } catch (IllegalArgumentException ignored) {
+                        // unknown key line in older saves
+                    }
                 }
             }
             appendLog("Game loaded from " + SAVE_FILE);
             refreshInventoryPanel();
+            syncOrderList();
             JOptionPane.showMessageDialog(this, "Game loaded!", "Load", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException ex) {
             appendLog("ERROR: Load failed - " + ex.getMessage());
