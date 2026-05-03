@@ -21,6 +21,12 @@ javac -d out MainApp.java RestaurantGUI.java engine\appliance\*.java engine\orde
 java -cp out RestaurantGUI
 ```
 
+**If not compiles in Windows run this:**
+```bash
+javac -encoding UTF-8 RestaurantGUI.java MainApp.java engine\order\*.java engine\appliance\*.java engine\simulation\*.java inventory\*.java
+java RestaurantGUI
+```
+
 The main entry point is `RestaurantGUI` (or `MainApp`, which calls it).
 
 ---
